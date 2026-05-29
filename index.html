@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Google AI Studio App</title>
+    <style>
+      /* Critical CSS to prevent Flash of Unstyled Content (FOUC) on initial load/refresh */
+      .logo-svg {
+        display: inline-block;
+        vertical-align: middle;
+        flex-shrink: 0;
+      }
+      /* Keep the SVG logo explicitly sized even with zero loaded stylesheet styles */
+      svg.logo-svg {
+        max-width: 56px !important;
+        max-height: 56px !important;
+      }
+      /* Setup basic HTML background behavior */
+      html {
+        background-color: #fcfcfc;
+      }
+      html.dark {
+        background-color: #080d19;
+      }
+    </style>
+    <link rel="stylesheet" href="/src/index.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
