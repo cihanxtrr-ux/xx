@@ -36,7 +36,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [selectedIotUseCase, setSelectedIotUseCase] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [language, setLanguageState] = useState<Language>('en');
-  const [theme, setThemeState] = useState<Theme>('light');
+  const [theme, setThemeState] = useState<Theme>('dark');
   const [basket, setBasket] = useState<BasketItem[]>([]);
   const [isBasketOpen, setBasketOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -47,14 +47,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setLanguageState(savedLang);
     }
     const savedTheme = localStorage.getItem('x_elektrik_theme');
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      setThemeState(savedTheme);
-      const root = window.document.documentElement;
-      if (savedTheme === 'dark') {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
+    const initialTheme = (savedTheme === 'light' || savedTheme === 'dark') ? savedTheme : 'dark';
+    setThemeState(initialTheme);
+    const root = window.document.documentElement;
+    if (initialTheme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
     }
     const savedBasket = localStorage.getItem('x_elektrik_basket');
     if (savedBasket) {

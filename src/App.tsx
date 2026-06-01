@@ -127,10 +127,37 @@ export default function App({ ssrPath, initialData }: AppProps) {
   const [desktopProductsSubmenuOpen, setDesktopProductsSubmenuOpen] = useState(false);
   const [desktopAboutSubmenuOpen, setDesktopAboutSubmenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+
+  // Initialize Smokey Fluid Interactive Background on Client Only
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      import('smokey-fluid-cursor').then(module => {
+        try {
+          module.initFluid({
+            id: 'smokey-fluid-canvas',
+            transparent: true,
+            densityDissipation: 2.2,
+            velocityDissipation: 1.8,
+            curl: 10,
+            splatRadius: 0.18,
+            splatForce: 3800,
+            shading: true,
+            colorUpdateSpeed: 8,
+            paused: false
+          });
+        } catch (err) {
+          console.error("Failed to run smokey-fluid-cursor:", err);
+        }
+      }).catch(err => {
+        console.error("Error loading smokey-fluid-cursor:", err);
+      });
+    }
+  }, []);
 
   // Auto-open submenus based on route
   useEffect(() => {
@@ -396,10 +423,16 @@ export default function App({ ssrPath, initialData }: AppProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0b101d] text-gray-800 dark:text-gray-100 font-sans antialiased selection:bg-[#0012FF]/10 selection:text-[#0012FF] flex flex-col justify-between transition-colors duration-200">
+    <div className="min-h-screen bg-white dark:bg-[#000000] text-gray-800 dark:text-gray-100 font-sans antialiased selection:bg-[#0012FF]/10 selection:text-[#0012FF] flex flex-col justify-between transition-colors duration-200">
+      
+      {/* Background Smokey Fluid Simulation Canvas */}
+      <canvas 
+        id="smokey-fluid-canvas" 
+        className="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-70 dark:opacity-85 backdrop-blur-3xl"
+      />
       
       {/* DESKTOP PERSISTENT LEFT SIDEBAR */}
-      <aside className="hidden xl:flex fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-[#0c1322] border-r border-gray-100 dark:border-white/10 flex-col justify-between p-6 z-30 overflow-y-auto">
+      <aside className="hidden">
         <div className="space-y-6">
           {/* Logo Branding Header */}
           <div className="pb-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
@@ -411,7 +444,7 @@ export default function App({ ssrPath, initialData }: AppProps) {
             </Link>
           </div>
           
-          <nav className="flex flex-col gap-6 text-sm font-sans font-bold tracking-wider uppercase">
+          <nav className="flex flex-col gap-6 font-sans font-bold tracking-wider uppercase">
             
             {/* Category 1: CORE NAV */}
             <div className="space-y-1">
@@ -917,7 +950,7 @@ export default function App({ ssrPath, initialData }: AppProps) {
 
         {/* Desktop Sidebar Utilities (Theme, Lang & Estimation CTA) */}
         <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-white/5">
-          <div className="flex items-center justify-between gap-1 bg-gray-50 dark:bg-[#10192e] p-1.5 rounded-2xl border border-gray-100 dark:border-white/5">
+          <div className="flex items-center justify-between gap-1 bg-gray-50 dark:bg-[#0c0c0c] p-1.5 rounded-2xl border border-gray-100 dark:border-white/5">
             {/* Language Switch */}
             <button
               onClick={toggleLanguage}
@@ -951,11 +984,11 @@ export default function App({ ssrPath, initialData }: AppProps) {
         </div>
       </aside>
 
-      {/* HEADER SECTION */}
-      <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 xl:hidden ${
+      {/* HIGH-END STICKY TOP GLASS NAVIGATION */}
+      <header className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
         isScrolled 
-          ? 'bg-white/95 dark:bg-[#0c1322]/95 backdrop-blur-md shadow-md border-b border-gray-150 dark:border-white/10 py-3' 
-          : 'bg-white/80 dark:bg-[#0c1322]/80 backdrop-blur-xs py-4 border-b border-gray-100 dark:border-white/5'
+          ? 'bg-white/85 dark:bg-black/60 backdrop-blur-xl shadow-lg shadow-black/5 py-7 border-gray-150/40 dark:border-white/5' 
+          : 'bg-white/60 dark:bg-black/25 backdrop-blur-md py-10 border-gray-100/30 dark:border-white/5'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <button 
@@ -966,332 +999,326 @@ export default function App({ ssrPath, initialData }: AppProps) {
           </button>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden xl:flex items-center gap-6 text-[11px] lg:text-[12px] font-sans font-bold tracking-wider uppercase">
+                    {/* Premium Desktop Center Navigation Links */}
+          <nav className="hidden xl:flex items-center gap-7 text-[11.5px] font-sans font-bold tracking-wider uppercase">
+            {/* Direct Link 1: VISION */}
             <button 
               onClick={() => navigateTo('/home')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/home') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
+              className={`transition-all duration-200 cursor-pointer bg-transparent border-none py-2 px-1 relative ${
+                isLinkActive('/home') ? 'text-[#0012FF] dark:text-cyan-400 font-extrabold' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
               }`}
             >
-              {t.nav.vision}
+              <span>{t.nav.vision}</span>
+              {isLinkActive('/home') && (
+                <motion.span 
+                  layoutId="activeNavLine"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0012FF] dark:bg-cyan-400 rounded-full"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
             </button>
+
+            {/* Direct Link 2: SERVICES */}
             <button 
               onClick={() => navigateTo('/services')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/services') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
+              className={`transition-all duration-200 cursor-pointer bg-transparent border-none py-2 px-1 relative ${
+                isLinkActive('/services') ? 'text-[#0012FF] dark:text-cyan-400 font-extrabold' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
               }`}
             >
-              {t.nav.services}
+              <span>{t.nav.services}</span>
+              {isLinkActive('/services') && (
+                <motion.span 
+                  layoutId="activeNavLine"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0012FF] dark:bg-cyan-400 rounded-full"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
             </button>
-            <div className="relative group py-1 flex items-center">
+
+            {/* Group 1 Dropdown: SYSTEMS & GRID */}
+            <div 
+              className="relative py-2"
+              onMouseEnter={() => setActiveDropdown('systems')}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
               <button 
-                onClick={() => {
-                  setSelectedCategory(null);
-                  navigateTo('/products');
-                }} 
-                className={`transition-colors cursor-pointer bg-transparent border-none py-1 flex items-center gap-1 ${
-                  isLinkActive('/products') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
+                className={`transition-all duration-200 cursor-pointer bg-transparent border-none flex items-center gap-1 ${
+                  isLinkActive('/products') || isLinkActive('/iot') || isLinkActive('/estimator')
+                    ? 'text-[#0012FF] dark:text-cyan-400 font-extrabold' 
+                    : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
                 }`}
               >
-                <span>{t.nav.products}</span>
-                <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180 opacity-70" />
+                <span>{language === 'tr' ? 'Sistemler & Şebeke' : 'Systems & Grid'}</span>
+                <ChevronDown className={`h-3 w-3 opacity-70 transition-transform duration-200 ${activeDropdown === 'systems' ? 'rotate-180 text-[#0012FF] dark:text-cyan-400' : ''}`} />
               </button>
               
-              {/* Desktop Products Submenu */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-80 bg-white dark:bg-[#0c1322] border border-gray-150 dark:border-white/10 rounded-2xl p-4 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none group-hover:pointer-events-auto">
-                <span className="block text-[8px] font-mono text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-100 dark:border-white/5 pb-1 w-full text-left">
-                  {language === 'tr' ? 'MÜHENDİSLİK ÜRÜN GRUPLARI' : 'ENGINEERING PRODUCT GROUPS'}
-                </span>
-                <div className="space-y-1">
-                  <button 
-                    onClick={() => {
-                      setSelectedCategory(null);
-                      navigateTo('/products');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
+              <AnimatePresence>
+                {activeDropdown === 'systems' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full left-0 mt-2 w-80 bg-white/95 dark:bg-[#050505]/95 backdrop-blur-2xl border border-gray-150/45 dark:border-white/10 rounded-2xl p-3 shadow-2xl z-50 text-left"
                   >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight">
-                      {language === 'tr' ? '1. TÜM SİSTEMLER' : '1. ALL SYSTEMS'}
+                    <span className="block text-[8px] font-mono text-gray-450 dark:text-gray-500 uppercase tracking-widest px-2 mb-2 font-bold pointer-events-none">
+                      {language === 'tr' ? 'MÜHENDİSLİK ÜRÜNLERİ' : 'SYSTEM SOLUTIONS'}
                     </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      {language === 'tr' ? 'Tüm orta ve yüksek gerilim donanımları, kabinler ve depolama.' : 'Full Medium and High voltage hardware, stabilizers, and cabinets.'}
-                    </span>
-                  </button>
+                    <div className="space-y-1">
+                      {/* Products */}
+                      <button 
+                        onClick={() => { setSelectedCategory(null); navigateTo('/products'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-3 group/navitem items-start"
+                      >
+                        <div className="p-2 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10 dark:group-hover/navitem:bg-cyan-400/10">
+                          <Cpu className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[11px] font-bold text-gray-800 dark:text-gray-200 group-hover/navitem:text-[#0012FF] dark:group-hover/navitem:text-cyan-300 uppercase font-mono">{t.nav.products}</span>
+                          <span className="block text-[9px] text-gray-450 dark:text-gray-400 font-normal leading-tight mt-0.5">{language === 'tr' ? 'Switchgear kabinleri, 24kV orta gerilim donanımları' : 'Switchgear hardware, medium-voltage distribution systems'}</span>
+                        </div>
+                      </button>
 
-                  <button 
-                    onClick={() => {
-                      setSelectedCategory('industrial');
-                      navigateTo('/products');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
-                  >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight">
-                      {language === 'tr' ? '2. AĞIR SANAYİ' : '2. HEAVY INDUSTRIAL'}
-                    </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      {language === 'tr' ? 'Ağır sanayi 24kV orta gerilim switchgear elemanları.' : 'Heavy-duty 24kV medium-voltage plant switchgear.'}
-                    </span>
-                  </button>
+                      {/* IoT Grid */}
+                      <button 
+                        onClick={() => { navigateTo('/iot'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-3 group/navitem items-start"
+                      >
+                        <div className="p-2 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10 dark:group-hover/navitem:bg-cyan-400/10">
+                          <Activity className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[11px] font-bold text-gray-800 dark:text-gray-200 group-hover/navitem:text-[#0012FF] dark:group-hover/navitem:text-cyan-300 uppercase font-mono">{t.nav.iot}</span>
+                          <span className="block text-[9px] text-gray-455 dark:text-gray-400 font-normal leading-tight mt-0.5">{language === 'tr' ? 'Tahminleyici soğutma ve lithium batarya şebeke kontrolü' : 'Predictive cooling and lithium grid power stabilization'}</span>
+                        </div>
+                      </button>
 
-                  <button 
-                    onClick={() => {
-                      setSelectedCategory('renewable');
-                      navigateTo('/products');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
-                  >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight">
-                      {language === 'tr' ? '3. YENİLENEBİLİR ŞEBEKE' : '3. RENEWABLE GRID'}
-                    </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      {language === 'tr' ? '5MW şebeke dengeleyici MegaPack bataryalar ve DC hızlı şarj üniteleri.' : '5MW peak stabilizer MegaPacks and DC fast chargers.'}
-                    </span>
-                  </button>
-
-                  <button 
-                    onClick={() => {
-                      setSelectedCategory('datacenter');
-                      navigateTo('/products');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
-                  >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight">
-                      {language === 'tr' ? '4. KRİTİK VERİ MERKEZLERİ' : '4. CRITICAL DATA BACKUP'}
-                    </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      {language === 'tr' ? '4ms altında gecikmeli yedekli ATS transfer şalterleri.' : 'Under 4ms transfer dynamic redundant switchgears.'}
-                    </span>
-                  </button>
-
-                  <button 
-                    onClick={() => {
-                      setSelectedCategory('commercial');
-                      navigateTo('/products');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
-                  >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight text-left">
-                      {language === 'tr' ? '5. AKILLI BİNA (BMS)' : '5. SMART BMS CONTROL'}
-                    </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      {language === 'tr' ? 'Ethernet fiber ve akıllı sensörlü bina yönetim sistemleri.' : 'Fiber IoT integrated modern building cabinets.'}
-                    </span>
-                  </button>
-                </div>
-              </div>
+                      {/* Estimator */}
+                      <button 
+                        onClick={() => { navigateTo('/estimator'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-3 group/navitem items-start"
+                      >
+                        <div className="p-2 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10 dark:group-hover/navitem:bg-cyan-400/10">
+                          <Calculator className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[11px] font-bold text-gray-800 dark:text-gray-200 group-hover/navitem:text-[#0012FF] dark:group-hover/navitem:text-cyan-300 uppercase font-mono">{t.nav.estimator}</span>
+                          <span className="block text-[9px] text-gray-455 dark:text-gray-400 font-normal leading-tight mt-0.5">{language === 'tr' ? 'Projeniz için akıllı maliyet ve şebeke güç hesaplayıcı' : 'Smart pricing and electrical specs cost estimator'}</span>
+                        </div>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <div className="relative group py-1 flex items-center">
+
+            {/* Group 2 Dropdown: COMPANY & CORPORATE */}
+            <div 
+              className="relative py-2"
+              onMouseEnter={() => setActiveDropdown('corporate')}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
               <button 
-                onClick={() => navigateTo('/iot')} 
-                className={`transition-colors cursor-pointer bg-transparent border-none py-1 flex items-center gap-1 ${
-                  isLinkActive('/iot') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
+                className={`transition-all duration-200 cursor-pointer bg-transparent border-none flex items-center gap-1 ${
+                  isLinkActive('/about') || isLinkActive('/portfolio') || isLinkActive('/careers') || isLinkActive('/documents') || isLinkActive('/app-center') || isLinkActive('/branding') || isLinkActive('/press-kit')
+                    ? 'text-[#0012FF] dark:text-cyan-400 font-extrabold' 
+                    : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
                 }`}
               >
-                <span>{t.nav.iot}</span>
-                <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180 opacity-70" />
+                <span>{language === 'tr' ? 'Kurumsal' : 'Corporate'}</span>
+                <ChevronDown className={`h-3 w-3 opacity-70 transition-transform duration-200 ${activeDropdown === 'corporate' ? 'rotate-180 text-[#0012FF] dark:text-cyan-400' : ''}`} />
               </button>
               
-              {/* Desktop Submenu */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-80 bg-white dark:bg-[#0c1322] border border-gray-150 dark:border-white/10 rounded-2xl p-4 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none group-hover:pointer-events-auto">
-                <span className="block text-[8px] font-mono text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-100 dark:border-white/5 pb-1 w-full text-left">
-                  Interactive Core Presets
-                </span>
-                <div className="space-y-1">
-                  <button 
-                    onClick={() => {
-                      setSelectedIotUseCase('thermal');
-                      navigateTo('/iot');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
+              <AnimatePresence>
+                {activeDropdown === 'corporate' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[440px] bg-white/95 dark:bg-[#050505]/95 backdrop-blur-2xl border border-gray-150/45 dark:border-white/10 rounded-2xl p-4 shadow-2xl z-50 text-left grid grid-cols-2 gap-3"
                   >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight">
-                      1. Predictive Cooling
-                    </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      Deploys high thermal liquid pump sweeps at 95% threshold.
-                    </span>
-                  </button>
+                    <div className="col-span-2 text-[8px] font-mono text-gray-405 dark:text-gray-500 uppercase tracking-widest px-1 mb-1 font-bold border-b border-gray-100 dark:border-white/5 pb-1 pointer-events-none">
+                      {language === 'tr' ? 'KURUMSAL BİLGİLER' : 'CORPORATE STANDARDS'}
+                    </div>
+                    
+                    {/* Column 1 items */}
+                    <div className="space-y-1">
+                      {/* About */}
+                      <button 
+                        onClick={() => { navigateTo('/about'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-2.5 group/navitem items-start"
+                      >
+                        <div className="p-1.5 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10">
+                          <Info className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[10.5px] font-bold text-gray-800 dark:text-gray-200 uppercase font-mono">{t.nav.about}</span>
+                          <span className="block text-[9px] text-gray-450 dark:text-gray-400 mt-0.5">{language === 'tr' ? 'Kimiz & vizyon' : 'Our team & safety'}</span>
+                        </div>
+                      </button>
 
-                  <button 
-                    onClick={() => {
-                      setSelectedIotUseCase('peak-shaving');
-                      navigateTo('/iot');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-55 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
-                  >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight">
-                      2. Peak Shaving
-                    </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      Offset substation core demands using lithium battery cells.
-                    </span>
-                  </button>
+                      {/* Portfolio */}
+                      <button 
+                        onClick={() => { navigateTo('/portfolio'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-2.5 group/navitem items-start"
+                      >
+                        <div className="p-1.5 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10">
+                          <Briefcase className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[10.5px] font-bold text-gray-800 dark:text-gray-200 uppercase font-mono">{t.nav.works}</span>
+                          <span className="block text-[9px] text-gray-450 dark:text-gray-400 mt-0.5">{language === 'tr' ? 'Projelerimiz' : 'Reference works'}</span>
+                        </div>
+                      </button>
 
-                  <button 
-                    onClick={() => {
-                      setSelectedIotUseCase('var-control');
-                      navigateTo('/iot');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-55 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
-                  >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight">
-                      3. CAP-Correction
-                    </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      Deploy shunt capacitors to maximize lagging phase balance.
-                    </span>
-                  </button>
+                      {/* Careers */}
+                      <button 
+                        onClick={() => { navigateTo('/careers'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-2.5 group/navitem items-start"
+                      >
+                        <div className="p-1.5 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10">
+                          <Award className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[10.5px] font-bold text-gray-800 dark:text-gray-200 uppercase font-mono">{t.nav.careers}</span>
+                          <span className="block text-[9px] text-gray-450 dark:text-gray-400 mt-0.5">{language === 'tr' ? 'Mühendislik ekibi' : 'Engineers team'}</span>
+                        </div>
+                      </button>
+                    </div>
 
-                  <button 
-                    onClick={() => {
-                      setSelectedIotUseCase('islanding');
-                      navigateTo('/iot');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-55 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
-                  >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight text-left">
-                      4. Islanding Isolation
-                    </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      Tripping mechanical contactors under transformer hazard.
-                    </span>
-                  </button>
-                </div>
-              </div>
+                    {/* Column 2 items */}
+                    <div className="space-y-1">
+                      {/* Documents */}
+                      <button 
+                        onClick={() => { navigateTo('/documents'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-2.5 group/navitem items-start"
+                      >
+                        <div className="p-1.5 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10">
+                          <FileText className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[10.5px] font-bold text-gray-800 dark:text-gray-200 uppercase font-mono">{t.nav.documents}</span>
+                          <span className="block text-[9px] text-gray-450 dark:text-gray-400 mt-0.5">{language === 'tr' ? 'Şartnameler' : 'Spec sheets archive'}</span>
+                        </div>
+                      </button>
+
+                      {/* App Center */}
+                      <button 
+                        onClick={() => { navigateTo('/app-center'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-2.5 group/navitem items-start"
+                      >
+                        <div className="p-1.5 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10">
+                          <AppWindow className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[10.5px] font-bold text-gray-800 dark:text-gray-200 uppercase font-mono">{t.nav.appCenter}</span>
+                          <span className="block text-[9px] text-gray-450 dark:text-gray-400 mt-0.5">{language === 'tr' ? 'Hızlı hesaplayıcı' : 'Telemetry control'}</span>
+                        </div>
+                      </button>
+
+                      {/* Branding / Press Mini Links */}
+                      <div className="pt-2 border-t border-gray-100 dark:border-white/5 flex gap-2 justify-between px-1 text-[9px] font-mono text-gray-400 dark:text-gray-500">
+                        <button onClick={() => { navigateTo('/branding'); setActiveDropdown(null); }} className="hover:text-[#0012FF] dark:hover:text-cyan-400 bg-transparent border-0 cursor-pointer p-0 font-bold">BRANDING</button>
+                        <span>|</span>
+                        <button onClick={() => { navigateTo('/press-kit'); setActiveDropdown(null); }} className="hover:text-[#0012FF] dark:hover:text-cyan-400 bg-transparent border-0 cursor-pointer p-0 font-bold">PRESS KIT</button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <button 
-              onClick={() => navigateTo('/estimator')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/estimator') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
-              }`}
+
+            {/* Group 3 Dropdown: INSIGHTS & CONTACT */}
+            <div 
+              className="relative py-2"
+              onMouseEnter={() => setActiveDropdown('insights')}
+              onMouseLeave={() => setActiveDropdown(null)}
             >
-              {t.nav.estimator}
-            </button>
-            <button 
-              onClick={() => navigateTo('/portfolio')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/portfolio') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
-              }`}
-            >
-              {t.nav.works}
-            </button>
-            <button 
-              onClick={() => navigateTo('/blog')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/blog') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
-              }`}
-            >
-              {t.nav.blog}
-            </button>
-            <button 
-              onClick={() => navigateTo('/news')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/news') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
-              }`}
-            >
-              {t.nav.news}
-            </button>
-            <div className="relative group py-1 flex items-center">
               <button 
-                onClick={() => navigateTo('/about')} 
-                className={`transition-colors cursor-pointer bg-transparent border-none py-1 flex items-center gap-1 ${
-                  isLinkActive('/about') || isLinkActive('/press-kit') || isLinkActive('/branding') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
+                className={`transition-all duration-200 cursor-pointer bg-transparent border-none flex items-center gap-1 ${
+                  isLinkActive('/blog') || isLinkActive('/news') || isLinkActive('/support') || isLinkActive('/contact')
+                    ? 'text-[#0012FF] dark:text-cyan-400 font-bold' 
+                    : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
                 }`}
               >
-                <span>{t.nav.about}</span>
-                <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180 opacity-70" />
+                <span>{language === 'tr' ? 'Haberler & Destek' : 'Insights & Desk'}</span>
+                <ChevronDown className={`h-3 w-3 opacity-70 transition-transform duration-200 ${activeDropdown === 'insights' ? 'rotate-180 text-[#0012FF] dark:text-cyan-400' : ''}`} />
               </button>
               
-              {/* Desktop About Submenu */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-80 bg-white dark:bg-[#0c1322] border border-gray-150 dark:border-white/10 rounded-2xl p-4 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none group-hover:pointer-events-auto">
-                <span className="block text-[8px] font-mono text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-100 dark:border-white/5 pb-1 w-full text-left font-bold">
-                  {language === 'tr' ? 'KURUMSAL KİMLİK & MEDYA' : 'CORPORATE & MEDIA'}
-                </span>
-                <div className="space-y-1">
-                  <button 
-                    onClick={() => {
-                      navigateTo('/about');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
+              <AnimatePresence>
+                {activeDropdown === 'insights' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full right-0 mt-2 w-80 bg-white/95 dark:bg-[#050505]/95 backdrop-blur-2xl border border-gray-150/45 dark:border-white/10 rounded-2xl p-3 shadow-2xl z-50 text-left"
                   >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight text-left">
-                      📖 {language === 'tr' ? 'Hakkımızda' : 'About Us'}
+                    <span className="block text-[8px] font-mono text-gray-405 dark:text-gray-500 uppercase tracking-widest px-2 mb-2 font-bold pointer-events-none">
+                      {language === 'tr' ? 'GÜNCELLEMELER VE DESTEK' : 'MEDIA & TECH HELP'}
                     </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      {language === 'tr' ? 'Tarihçemiz, kurumsal vizyonumuz ve sıfır-kaza güvenlik taahhütleri.' : 'Our background, corporate vision statement, and zero-accident commitments.'}
-                    </span>
-                  </button>
+                    <div className="space-y-1">
+                      {/* Blog */}
+                      <button 
+                        onClick={() => { navigateTo('/blog'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2.5 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-3 group/navitem items-start"
+                      >
+                        <div className="p-2 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10">
+                          <Newspaper className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[11px] font-bold text-gray-800 dark:text-gray-200 group-hover/navitem:text-[#0012FF] dark:group-hover/navitem:text-cyan-300 uppercase font-mono">{t.nav.blog}</span>
+                          <span className="block text-[9px] text-gray-450 dark:text-gray-400 font-normal leading-tight mt-0.5">{language === 'tr' ? 'Sektörel makalelerimiz & analizler' : 'Engineering articles & structural summaries'}</span>
+                        </div>
+                      </button>
 
-                  <button 
-                    onClick={() => {
-                      navigateTo('/branding');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
-                  >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight text-left">
-                      🎨 {language === 'tr' ? 'Marka Kimliği' : 'Branding Guidelines'}
-                    </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      {language === 'tr' ? 'Tescilli logolar, kurumsal renklerimiz ve tipografi standartları.' : 'Vector logos, corporate color choices, and typography system.'}
-                    </span>
-                  </button>
+                      {/* News */}
+                      <button 
+                        onClick={() => { navigateTo('/news'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2.5 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-3 group/navitem items-start"
+                      >
+                        <div className="p-2 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10">
+                          <Megaphone className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[11px] font-bold text-gray-800 dark:text-gray-200 group-hover/navitem:text-[#0012FF] dark:group-hover/navitem:text-cyan-300 uppercase font-mono">{t.nav.news}</span>
+                          <span className="block text-[9px] text-gray-450 dark:text-gray-400 font-normal leading-tight mt-0.5">{language === 'tr' ? 'Resmi basın açıklamaları' : 'Official releases & commercial updates'}</span>
+                        </div>
+                      </button>
 
-                  <button 
-                    onClick={() => {
-                      navigateTo('/press-kit');
-                    }}
-                    className="w-full text-left p-2 rounded-xl hover:bg-gray-55 dark:hover:bg-white/5 transition border-0 bg-transparent cursor-pointer group/item flex flex-col items-start gap-0.5"
-                  >
-                    <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 group-hover/item:text-[#0012FF] dark:group-hover/item:text-cyan-300 transition-colors uppercase font-mono tracking-tight text-left">
-                      📂 {language === 'tr' ? 'Basın Kiti' : 'Press Kit'}
-                    </span>
-                    <span className="text-[9px] text-gray-400 dark:text-gray-500 font-normal leading-relaxed text-left">
-                      {language === 'tr' ? 'Onaylı kurumsal özet metinleri ve resmi basın iletişim kanalları.' : 'Corporate description boilerplates, coordinates, and verified media kit resources.'}
-                    </span>
-                  </button>
-                </div>
-              </div>
+                      {/* Support desk */}
+                      <button 
+                        onClick={() => { navigateTo('/support'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2.5 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-3 group/navitem items-start"
+                      >
+                        <div className="p-2 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10">
+                          <LifeBuoy className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[11px] font-bold text-gray-800 dark:text-gray-200 group-hover/navitem:text-[#0012FF] dark:group-hover/navitem:text-cyan-300 uppercase font-mono">{language === 'tr' ? 'Destek Masası' : 'Help Desk'}</span>
+                          <span className="block text-[9px] text-gray-450 dark:text-gray-400 font-normal leading-tight mt-0.5">{language === 'tr' ? 'Müşteri paneli desteği' : 'Support SLA and direct coordinator logs'}</span>
+                        </div>
+                      </button>
+
+                      {/* Contact */}
+                      <button 
+                        onClick={() => { navigateTo('/contact'); setActiveDropdown(null); }}
+                        className="w-full text-left p-2.5 rounded-xl hover:bg-[#0012FF]/5 dark:hover:bg-cyan-400/5 transition border-0 bg-transparent cursor-pointer flex gap-3 group/navitem items-start"
+                      >
+                        <div className="p-2 rounded-lg bg-[#0012FF]/5 dark:bg-cyan-400/5 text-[#0012FF] dark:text-cyan-400 group-hover/navitem:bg-[#0012FF]/10">
+                          <Mail className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <span className="block text-[11px] font-bold text-gray-800 dark:text-gray-200 group-hover/navitem:text-[#0012FF] dark:group-hover/navitem:text-cyan-300 uppercase font-mono">{t.nav.contact}</span>
+                          <span className="block text-[9px] text-gray-450 dark:text-gray-400 font-normal leading-tight mt-0.5">{language === 'tr' ? 'İletişime geçin' : 'Request instant infrastructure consultancy'}</span>
+                        </div>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <button 
-              onClick={() => navigateTo('/careers')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/careers') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
-              }`}
-            >
-              {t.nav.careers}
-            </button>
-            <button 
-              onClick={() => navigateTo('/documents')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/documents') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
-              }`}
-            >
-              {t.nav.documents}
-            </button>
-            <button 
-              onClick={() => navigateTo('/app-center')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/app-center') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400 font-bold' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
-              }`}
-            >
-              {t.nav.appCenter}
-            </button>
-            <button 
-              onClick={() => navigateTo('/contact')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/contact') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
-              }`}
-            >
-              {t.nav.contact}
-            </button>
-            <button 
-              onClick={() => navigateTo('/support')} 
-              className={`transition-colors cursor-pointer bg-transparent border-none py-1 ${
-                isLinkActive('/support') ? 'text-[#0012FF] dark:text-cyan-400 border-b-2 border-[#0012FF] dark:border-cyan-400' : 'text-gray-500 dark:text-gray-400 hover:text-[#0012FF] dark:hover:text-cyan-300'
-              }`}
-            >
-              {language === 'tr' ? 'Destek' : 'Support'}
-            </button>
           </nav>
 
           {/* Action CTA, Utility toggles and hamburger menu aligned right */}
@@ -1369,7 +1396,7 @@ export default function App({ ssrPath, initialData }: AppProps) {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: "spring", stiffness: 380, damping: 35 }}
-                className="fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-[#0c1322] shadow-2xl z-50 p-6 flex flex-col justify-between overflow-y-auto border-l border-gray-150 dark:border-white/10 xl:hidden"
+                className="fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-[#000000] shadow-2xl z-50 p-6 flex flex-col justify-start overflow-y-auto border-l border-gray-150 dark:border-white/10 xl:hidden"
               >
                 {/* Header Section inside Drawer */}
                 <div className="flex items-center justify-between pb-5 border-b border-gray-100 dark:border-white/5">
@@ -1385,7 +1412,7 @@ export default function App({ ssrPath, initialData }: AppProps) {
                 </div>
 
                 {/* Subnav links Scroll Container */}
-                <nav className="flex-grow py-6 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-200px)] text-xs uppercase tracking-wider font-bold">
+                <nav className="py-6 flex flex-col gap-6 text-xs uppercase tracking-wider font-bold">
                   {/* Category Group 1: CORE NAVIGATION */}
                   <div className="space-y-1">
                     <span className="block text-[8px] font-mono text-gray-400 dark:text-gray-500 tracking-[0.25em] px-4 mb-2">
@@ -1681,7 +1708,7 @@ export default function App({ ssrPath, initialData }: AppProps) {
             </nav>
 
             {/* Footer Section pinned inside Drawer */}
-            <div className="pt-4 border-t border-gray-100 dark:border-white/5 space-y-3">
+            <div className="mt-auto pt-6 border-t border-gray-100 dark:border-white/5 space-y-3">
               <button
                 onClick={() => { navigateTo('/estimator'); setMobileMenuOpen(false); }}
                 className="w-full h-11 flex items-center justify-center p-3 rounded-xl bg-[#0012FF] text-white dark:bg-cyan-400 dark:text-slate-950 font-bold hover:opacity-90 transition-all uppercase text-[10px] tracking-wider cursor-pointer border-0 gap-1"
@@ -1696,7 +1723,7 @@ export default function App({ ssrPath, initialData }: AppProps) {
     </AnimatePresence>
 
       {/* DETACHED MAIN TRANSITIONAL CONTENT LAYER */}
-      <main className="flex-grow pt-24 sm:pt-28 xl:pt-12 xl:pl-72 pb-12 w-full">
+      <main className="flex-grow pt-24 sm:pt-28 xl:pt-28 pb-12 w-full">
         <React.Suspense fallback={
           <div className="flex flex-col items-center justify-center min-h-[50vh] p-8">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-[#0012FF] dark:border-t-cyan-400" />
@@ -1750,7 +1777,7 @@ export default function App({ ssrPath, initialData }: AppProps) {
       </main>
 
       {/* FOOTER SECTION */}
-      <footer className="xl:pl-72 bg-gray-950 text-gray-400 py-16 border-t border-gray-900 relative">
+      <footer className="bg-gray-950 text-gray-400 py-16 border-t border-gray-900 relative">
         <div className="absolute inset-x-0 top-0 h-[100px] bg-gradient-to-b from-gray-55/5 to-transparent pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10 text-left w-full">
           
@@ -1829,7 +1856,7 @@ export default function App({ ssrPath, initialData }: AppProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 50 }}
             onClick={() => setBasketOpen(true)}
-            className="fixed bottom-6 right-6 z-40 p-4 rounded-full bg-[#0012FF] dark:bg-cyan-400 text-white dark:text-slate-950 shadow-2xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform duration-200 border-0 cursor-pointer"
+            className="fixed bottom-6 right-6 z-45 p-4 rounded-full bg-[#0012FF] dark:bg-cyan-400 text-white dark:text-slate-950 shadow-2xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform duration-200 border-0 cursor-pointer"
             id="order-basket-fab"
           >
             <ShoppingCart className="h-5 w-5" />

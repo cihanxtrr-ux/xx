@@ -88,7 +88,7 @@ export default function News() {
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <span className="absolute top-3 left-3 bg-[#0c1322]/90 border border-white/15 text-white text-[9px] font-mono font-bold px-2.5 py-1 rounded-md tracking-wider uppercase">
+              <span className="absolute top-3 left-3 bg-black/90 border border-white/15 text-white text-[9px] font-mono font-bold px-2.5 py-1 rounded-md tracking-wider uppercase">
                 {item.category}
               </span>
             </div>

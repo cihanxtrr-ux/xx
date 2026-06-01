@@ -315,6 +315,19 @@ async function startServer() {
       return next();
     }
 
+    // Hybrid SSG Fallback: Serve static pre-rendered HTML files if they exist
+    if (isProd) {
+      const cleanRoute = url === '/' ? 'index' : url.substring(1);
+      const staticHtmlPath = path.resolve(dirPath, `${cleanRoute}.html`);
+      const staticDirHtmlPath = path.resolve(dirPath, cleanRoute, 'index.html');
+
+      if (fs.existsSync(staticHtmlPath)) {
+        return res.sendFile(staticHtmlPath);
+      } else if (fs.existsSync(staticDirHtmlPath)) {
+        return res.sendFile(staticDirHtmlPath);
+      }
+    }
+
     try {
       // 1. Read index.html template
       let template: string;

@@ -117,7 +117,7 @@ export default function BasketDrawer({ onAddInquiry }: BasketDrawerProps) {
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="relative w-full max-w-lg h-full bg-white dark:bg-[#0c1322] shadow-2xl flex flex-col z-10 border-l border-gray-150 dark:border-white/10 text-left"
+          className="relative w-full max-w-lg h-[100dvh] max-h-[100dvh] bg-white dark:bg-[#050505] shadow-2xl flex flex-col z-10 border-l border-gray-150 dark:border-white/10 text-left"
           id="basket-drawer-panel"
         >
           {/* Drawer Header */}

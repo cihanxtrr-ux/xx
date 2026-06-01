@@ -89,7 +89,7 @@ export default function NewsDetail() {
       </div>
 
       {/* Main Container */}
-      <article className="bg-white dark:bg-[#0c1322] border border-gray-150 dark:border-white/10 rounded-3xl overflow-hidden shadow-xl flex flex-col">
+      <article className="bg-white dark:bg-[#090909] border border-gray-150 dark:border-white/10 rounded-3xl overflow-hidden shadow-xl flex flex-col">
         {/* Full image header */}
         <div className="aspect-[21/9] w-full relative bg-slate-100 dark:bg-slate-950 overflow-hidden shrink-0">
           <img 
