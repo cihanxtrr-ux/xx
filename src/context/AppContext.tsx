@@ -7,6 +7,15 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations, TranslationDictionary } from '../translations';
 import { BasketItem } from '../types';
 
+export interface AppUser {
+  name: string;
+  email: string;
+  companyName: string;
+  sector: string;
+  phone?: string;
+  createdAt: string;
+}
+
 type Language = 'en' | 'tr';
 type Theme = 'light' | 'dark';
 
@@ -28,6 +37,9 @@ interface AppContextType {
   clearBasket: () => void;
   isBasketOpen: boolean;
   setBasketOpen: (open: boolean) => void;
+  currentUser: AppUser | null;
+  setCurrentUser: (user: AppUser | null) => void;
+  logout: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -39,6 +51,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('dark');
   const [basket, setBasket] = useState<BasketItem[]>([]);
   const [isBasketOpen, setBasketOpen] = useState(false);
+  const [currentUser, setCurrentUserState] = useState<AppUser | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -61,6 +74,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setBasket(JSON.parse(savedBasket));
       } catch (e) {
         console.error('Error parsing saved basket', e);
+      }
+    }
+    const savedUser = localStorage.getItem('x_elektrik_user');
+    if (savedUser) {
+      try {
+        setCurrentUserState(JSON.parse(savedUser));
+      } catch (e) {
+        console.error('Error parsing saved user', e);
       }
     }
     setIsHydrated(true);
@@ -128,6 +149,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setBasket([]);
   };
 
+  const setCurrentUser = (user: AppUser | null) => {
+    setCurrentUserState(user);
+    if (user) {
+      localStorage.setItem('x_elektrik_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('x_elektrik_user');
+    }
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+  };
+
   const t = translations[language];
 
   return (
@@ -150,6 +184,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         clearBasket,
         isBasketOpen,
         setBasketOpen,
+        currentUser,
+        setCurrentUser,
+        logout,
       }}
     >
       {children}

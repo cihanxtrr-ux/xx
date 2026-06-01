@@ -124,6 +124,21 @@ export const seoMetadata: Record<string, MetaTagSet> = {
     title: "X Elektrik News & Grid Engineering Updates",
     description: "Read about our latest 5MWh LFP BESS microgrid commissionings, datacenter substation expansions, and zero accident safety records.",
     keywords: "news feed, energy news, grid engineering, battery storage, high voltage substations"
+  },
+  'login': {
+    title: "Client Portal Credentials Login | X Elektrik",
+    description: "Access your secure bidding queue, engineering document vaults, and industrial power telemetry models.",
+    keywords: "operator login, credentials decryption, secure grid node"
+  },
+  'register': {
+    title: "Register Operator Signature Account | X Elektrik",
+    description: "Setup custom client sector configurations, secure high-capacity bidding, and manage smart-grid telemetry options.",
+    keywords: "operator registration, signature creation, company credential workspace"
+  },
+  'dashboard': {
+    title: "Secured Operator Client Portal Dashboard | X Elektrik",
+    description: "Inspect live grid system telemetry streams, manage bidding worksheets, view real-time single-line diagram statics.",
+    keywords: "operator dashboard, electric telemetry workspace, client grid control"
   }
 };
 
@@ -132,6 +147,15 @@ export function getRouteKey(pathname: string): string {
   
   if (cleanUrl === '/' || cleanUrl === '/home' || cleanUrl === '') {
     return 'home';
+  }
+  if (cleanUrl.startsWith('/login')) {
+    return 'login';
+  }
+  if (cleanUrl.startsWith('/register')) {
+    return 'register';
+  }
+  if (cleanUrl.startsWith('/dashboard')) {
+    return 'dashboard';
   }
   if (cleanUrl.startsWith('/services')) {
     return 'services';

@@ -156,6 +156,27 @@ const getSchemaMarkup = (routeKey: string, meta: any, origin: string, url: strin
   return baseSchema;
 };
 
+// Helper functions for input validation and sanitization
+const sanitizeString = (val: any, maxLength = 256): string => {
+  if (typeof val !== 'string') return '';
+  // Trim and strip HTML tags to prevent XSS
+  const cleaned = val.replace(/<\/?[^>]+(>|$)/g, '').trim();
+  return cleaned.substring(0, maxLength);
+};
+
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 128;
+};
+
+const validateNumeric = (val: any, min = 0, max = Number.MAX_SAFE_INTEGER): number | null => {
+  const parsed = Number(val);
+  if (isNaN(parsed) || parsed < min || parsed > max) {
+    return null;
+  }
+  return parsed;
+};
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -252,25 +273,37 @@ async function startServer() {
 
   // 4. API POST ENDPOINT: Add Inquiry (RFP)
   app.post('/api/inquiries', (req, res) => {
-    const { clientName, clientEmail, clientPhone, projectType, scaleSqFt, specs, estimatedCost, timeline } = req.body;
+    const rawClientName = sanitizeString(req.body.clientName, 128);
+    const rawClientEmail = sanitizeString(req.body.clientEmail, 128);
+    const rawClientPhone = sanitizeString(req.body.clientPhone, 128);
+    const rawProjectType = sanitizeString(req.body.projectType, 64);
+    const rawSpecs = sanitizeString(req.body.specs, 1000);
+    const rawTimeline = sanitizeString(req.body.timeline, 128);
     
-    if (!clientName || !clientEmail || !projectType) {
-      return res.status(400).json({ error: 'Required fields missing' });
+    if (!rawClientName || !rawClientEmail || !rawProjectType) {
+      return res.status(400).json({ error: 'Required fields missing or contain invalid formats' });
     }
+
+    if (!validateEmail(rawClientEmail)) {
+      return res.status(400).json({ error: 'Invalid client email address format' });
+    }
+
+    const cleanScaleSqFt = validateNumeric(req.body.scaleSqFt, 1, 10000000) ?? 12000;
+    const cleanEstimatedCost = validateNumeric(req.body.estimatedCost, 1, 1000000000) ?? 250000;
 
     const randomId = `RFP-${Math.floor(1000 + Math.random() * 9000)}`;
     const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const newInquiry: InquiryItem = {
       id: randomId,
-      clientName,
-      clientEmail,
-      clientPhone,
-      projectType,
-      scaleSqFt: Number(scaleSqFt) || 12000,
-      specs: specs || "Automatic Configuration",
-      estimatedCost: Number(estimatedCost) || 250000,
-      timeline: timeline || "8 Weeks Estimated",
+      clientName: rawClientName,
+      clientEmail: rawClientEmail,
+      clientPhone: rawClientPhone || undefined,
+      projectType: rawProjectType,
+      scaleSqFt: cleanScaleSqFt,
+      specs: rawSpecs || "Automatic Configuration",
+      estimatedCost: cleanEstimatedCost,
+      timeline: rawTimeline || "8 Weeks Estimated",
       timestamp: `Today at ${nowStr}`,
       hasUserConfig: true
     };
@@ -281,28 +314,39 @@ async function startServer() {
 
   // 5. API POST ENDPOINT: Contact Submissions
   app.post('/api/contact', (req, res) => {
-    const { name, email, message } = req.body;
-    if (!name || !email || !message) {
+    const rawName = sanitizeString(req.body.name, 128);
+    const rawEmail = sanitizeString(req.body.email, 128);
+    const rawMessage = sanitizeString(req.body.message, 5000);
+
+    if (!rawName || !rawEmail || !rawMessage) {
       return res.status(400).json({ error: 'Name, email, and message are required' });
+    }
+
+    if (!validateEmail(rawEmail)) {
+      return res.status(400).json({ error: 'Invalid email address format' });
     }
 
     const newMessage: MessageItem = {
       id: `MSG-${Math.floor(10000 + Math.random() * 90000)}`,
-      name,
-      email,
-      message,
+      name: rawName,
+      email: rawEmail,
+      message: rawMessage,
       timestamp: new Date().toISOString()
     };
 
     db.messages.push(newMessage);
-    console.log(`[Contact Submission] Saved message ${newMessage.id} from ${name}`);
+    console.log(`[Contact Submission] Saved message ${newMessage.id} from ${rawName}`);
     res.json({ success: true, messageId: newMessage.id, message: 'Your message has been logged.' });
   });
 
   // 6. API DISMISS INQUIRY ENDPOINT
   app.delete('/api/inquiries/:id', (req, res) => {
-    const { id } = req.params;
-    db.inquiries = db.inquiries.filter(item => item.id !== id);
+    const cleanId = sanitizeString(req.params.id, 50);
+    // Enforce matching ID format of RFP-xxxx
+    if (!/^RFP-\d+$/.test(cleanId)) {
+      return res.status(400).json({ error: 'Invalid inquiry ID format sequence' });
+    }
+    db.inquiries = db.inquiries.filter(item => item.id !== cleanId);
     res.json({ success: true, inquiries: db.inquiries });
   });
 

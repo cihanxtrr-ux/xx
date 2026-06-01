@@ -10,7 +10,7 @@ interface HomeProps {
 }
 
 export default function Home({ onNavigate }: HomeProps) {
-  const { t } = useApp();
+  const { t, currentUser, language } = useApp();
 
   return (
     <motion.div
@@ -39,10 +39,25 @@ export default function Home({ onNavigate }: HomeProps) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             <div className="lg:col-span-7 space-y-6 text-left">
-              <div className="inline-flex items-center gap-2 bg-[#0012FF]/30 border border-[#0012FF] rounded-full px-3.5 py-1 text-xs font-mono font-bold uppercase text-[#4D64FF]">
-                <CircuitBoard className="h-4 w-4 text-[#00FF00] animate-pulse" />
-                <span>{t.home.gridSystems}</span>
-              </div>
+              {currentUser ? (
+                <div className="inline-flex items-center gap-2.5 bg-emerald-500/10 border border-emerald-500/35 rounded-full px-4 py-1.5 text-[10px] font-mono font-bold uppercase text-emerald-400">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                  </span>
+                  <span>
+                    {language === 'tr' 
+                      ? `BAĞLANDI // OPERATÖR: ${currentUser.name.toUpperCase()} [${currentUser.companyName.toUpperCase()}]`
+                      : `CONNECTED // OPERATOR: ${currentUser.name.toUpperCase()} [${currentUser.companyName.toUpperCase()}]`
+                    }
+                  </span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 bg-[#0012FF]/30 border border-[#0012FF] rounded-full px-3.5 py-1 text-xs font-mono font-bold uppercase text-[#4D64FF]">
+                  <CircuitBoard className="h-4 w-4 text-[#00FF00] animate-pulse" />
+                  <span>{t.home.gridSystems}</span>
+                </div>
+              )}
               
               <h1 className="text-4xl sm:text-6xl font-display font-medium tracking-tight text-white leading-none">
                 {t.home.heroTitle} <br />

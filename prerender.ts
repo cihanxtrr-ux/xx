@@ -35,7 +35,10 @@ const routes = [
   '/iot',
   '/press-kit',
   '/branding',
-  '/news'
+  '/news',
+  '/login',
+  '/register',
+  '/dashboard'
 ];
 
 const getSchemaMarkup = (routeKey: string, meta: any, origin: string, url: string) => {
